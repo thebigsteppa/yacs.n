@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 from fastapi import FastAPI, HTTPException, Request, Response, UploadFile, Form, File, Depends
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi_cache import FastAPICache
@@ -382,3 +383,29 @@ async def remove_professor(email:str):
     print(email)
     professor, error = professor_info.remove_professor(email)
     return professor if not error else Response(str(error), status_code=500)
+@app.put('/api/professor/update/{email}')
+async def update_professor(email: str, professor_data: UpdateProfessorPydantic):
+    """
+    PUT /api/professor/update/{email}
+    
+    Update professor details based on email.
+    """
+    updated_professor, error = professor_info.update_professor(
+        email,
+        professor_data.name,
+        professor_data.title,
+        professor_data.phone_number,
+        professor_data.department,
+        professor_data.portfolio_page
+    )
+    return updated_professor if not error else Response(content=error, status_code=500)
+
+# Define the Pydantic model for update request
+from pydantic import BaseModel
+
+class UpdateProfessorPydantic(BaseModel):
+    name: str
+    title: str
+    phone_number: str
+    department: str
+    portfolio_page: str
