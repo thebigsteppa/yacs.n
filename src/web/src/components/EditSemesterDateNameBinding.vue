@@ -177,3 +177,51 @@ export default {
   cursor: not-allowed;
 }
 </style>
+<template>
+  <div class="new-component">
+    <h3>{{ message }}</h3>
+    <button @click="toggleMessage">Toggle Message</button>
+  </div>
+</template>
+
+<script>
+import { defineComponent, ref } from "vue";
+
+export default defineComponent({
+  name: "NewComponent",
+  setup() {
+    const message = ref("Hello, Vue!");
+    
+    const toggleMessage = () => {
+      message.value = message.value === "Hello, Vue!" ? "Welcome to the new component!" : "Hello, Vue!";
+    };
+    
+    return {
+      message,
+      toggleMessage,
+    };
+  },
+});
+</script>
+
+<style scoped>
+.new-component {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #f4f4f4;
+}
+.new-component button {
+  margin-top: 10px;
+  padding: 5px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.new-component button:hover {
+  background-color: #0056b3;
+}
+</style>
