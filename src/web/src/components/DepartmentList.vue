@@ -74,3 +74,39 @@ export default {
   color: #3395ff;
 }
 </style>
+<template>
+  <div class="course-search">
+    <b-form-group label="Search" label-for="search">
+      <b-form-input
+        id="search"
+        v-model="textSearch"
+        :debounce="debounceTime"
+        placeholder="Intro to College - COLG 1030"
+        list="list-id"
+      ></b-form-input>
+    </b-form-group>
+    <b-row>
+      <b-col v-if="subsemesterOptions.length > 2">
+        <b-form-group label="Filter Sub-Semester" for="sub-semester">
+          <b-form-select v-model="selectedSubsemester" :options="subsemesterOptions"></b-form-select>
+        </b-form-group>
+      </b-col>
+      <b-col>
+        <b-form-group label="Filter Department" for="department">
+          <b-form-select v-model="selectedDepartment" :options="departmentOptions"></b-form-select>
+        </b-form-group>
+      </b-col>
+    </b-row>
+  </div>
+</template>
+
+<script>
+export default {
+  props: ["textSearch", "selectedSubsemester", "selectedDepartment", "subsemesterOptions", "departmentOptions"],
+  data() {
+    return {
+      debounceTime: 300,
+    };
+  },
+};
+</script>
