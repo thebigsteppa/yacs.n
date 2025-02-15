@@ -242,3 +242,52 @@ export default {
   cursor: pointer;
 }
 </style>
+<template>
+  <div class="functional-component">
+    <h2>{{ title }}</h2>
+    <p>{{ description }}</p>
+    <button @click="emitClick">Click Me</button>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "FunctionalComponent",
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+  },
+  emits: ["buttonClicked"],
+  setup(_, { emit }) {
+    const emitClick = () => {
+      emit("buttonClicked");
+    };
+    return {
+      emitClick,
+    };
+  },
+});
+</script>
+
+<style>
+.functional-component button {
+  margin-top: 10px;
+  padding: 5px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.functional-component button:hover {
+  background-color: #0056b3;
+}
+</style>
