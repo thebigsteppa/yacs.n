@@ -2,10 +2,21 @@
     <div class="profile">
         <h1>Profile Page</h1>
         <div class="profile-details">
-            <p>Name: John Doe</p>
-            <p>Email: john.doe@example.com</p>
+            <p>Name: {{ name }}</p>
+            <p>Email: {{ email }}</p>
             <!-- Add more profile details here -->
         </div>
+        <form @submit.prevent="updateProfile">
+            <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" v-model="name">
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" v-model="email">
+            </div>
+            <button type="submit">Update Profile</button>
+        </form>
     </div>
 </template>
 
@@ -14,11 +25,16 @@ export default {
     name: 'Profile',
     data() {
         return {
-            // Add profile data here
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            // Add more profile data here
         };
     },
     methods: {
-        // Add methods here
+        updateProfile() {
+            // Handle profile update logic here
+            console.log('Profile updated:', this.name, this.email);
+        },
     },
 };
 </script>
@@ -30,5 +46,13 @@ export default {
 
 .profile-details {
     margin-top: 20px;
+}
+
+form {
+    margin-top: 20px;
+}
+
+form div {
+    margin-bottom: 10px;
 }
 </style>

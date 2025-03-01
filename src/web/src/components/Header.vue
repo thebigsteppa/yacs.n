@@ -86,7 +86,7 @@
           <template v-slot:button-content>Hi, {{ user.name }}</template>
           
           <!-- Profile Button -->
-          <b-dropdown-item @click="$router.push({ name: 'UserProfile' })">
+          <b-dropdown-item @click="$router.push({ name: 'Profile' })">
             Profile
           </b-dropdown-item>
           
