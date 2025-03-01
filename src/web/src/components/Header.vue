@@ -83,9 +83,17 @@
           </b-dropdown-item>
         </b-nav-dropdown>
         <b-nav-item-dropdown right v-if="isLoggedIn">
-          <!-- Using 'button-content' slot -->
           <template v-slot:button-content>Hi, {{ user.name }}</template>
-          <b-dropdown-item @click="logOut">Sign Out</b-dropdown-item>
+          
+          <!-- Profile Button -->
+          <b-dropdown-item @click="$router.push({ name: 'UserProfile' })">
+            Profile
+          </b-dropdown-item>
+          
+          <!-- Log Out Button -->
+          <b-dropdown-item @click="logOut">
+            Sign Out
+          </b-dropdown-item>
         </b-nav-item-dropdown>
 
         <!-- If user has not logged in -->
