@@ -153,6 +153,38 @@ export default {
             isEditingProfile: false
         };
     },
+    methods: {
+        // Method to handle profile updates
+        updateProfile() {
+            console.log('Profile updated with the following info:');
+            console.log('Name:', this.name);
+            console.log('Email:', this.email);
+            console.log('Phone:', this.phone);
+            console.log('Location:', this.location);
+            console.log('Bio:', this.bio);
+            console.log('Social Links:', this.socialLinks);
+
+            alert('Profile updated!');
+            // Hide the form after saving
+            this.isEditingProfile = false;
+        },
+        // Method to handle file input changes
+        onImageSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.imagePreview = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+        // Method to cancel editing
+        cancelEdit() {
+            // Reset editing state
+            this.isEditingProfile = false;
+        }
+    },
 };
 </script>
 
@@ -279,5 +311,19 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background: #0056b3;
+}
+
+/* Cancel button for edit form */
+button[type="button"] {
+    margin-left: 10px;
+    padding: 10px 16px;
+    background: #ccc;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+}
+
+button[type="button"]:hover {
+    background: #b3b3b3;
 }
 </style>
