@@ -158,6 +158,46 @@
       <button type="submit">Send</button>
     </form>
   </div>
+  <div class="message-feature">
+    <!-- BLOCK/UNBLOCK FEATURE -->
+    <div class="block-user-action">
+      <!-- If user is not blocked, show "Block User" button -->
+      <button v-if="!isBlocked" @click="toggleBlock">
+        Block {{ recipientName }}
+      </button>
+      <!-- If user is blocked, show "Unblock User" button -->
+      <button v-else @click="toggleBlock">
+        Unblock {{ recipientName }}
+      </button>
+    </div>
+
+    <!-- SEND MESSAGE FEATURE -->
+    <div class="message-action">
+      <!-- Button to open/close message form -->
+      <button @click="toggleMessageForm">
+        {{ isSendingMessage ? 'Close Message Form' : 'Send Message' }}
+      </button>
+
+      <!-- Message Form (visible only if isSendingMessage is true) -->
+      <form 
+        v-if="isSendingMessage" 
+        @submit.prevent="sendMessage" 
+        class="send-message-form"
+      >
+        <h3>Send Message to {{ recipientName }}</h3>
+        <div class="form-group">
+          <label for="messageText">Message:</label>
+          <textarea 
+            id="messageText" 
+            v-model="messageText" 
+            rows="3" 
+            placeholder="Write your message here..."
+          ></textarea>
+        </div>
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
   </template>
   <script>
   export default {
@@ -181,6 +221,63 @@
         // Here you'd handle the message (API call, Vuex, etc.)
         console.log('Message sent to ' + this.recipientName + ':', this.messageText);
         alert('Message sent: ' + this.messageText);
+  
+        // Clear and close the form
+        this.messageText = '';
+        this.isSendingMessage = false;
+      }
+    }
+  };
+  </script>
+  <script>
+  export default {
+    name: 'MessageFeature',
+    data() {
+      return {
+        // Name of the user you’re interacting with
+        recipientName: 'John Doe',
+  
+        // BLOCK/UNBLOCK FEATURE
+        isBlocked: false,
+  
+        // SEND MESSAGE FEATURE
+        isSendingMessage: false,
+        messageText: ''
+      };
+    },
+    methods: {
+      // Toggle blocking/unblocking the user
+      toggleBlock() {
+        this.isBlocked = !this.isBlocked;
+        if (this.isBlocked) {
+          console.log(`You have blocked ${this.recipientName}.`);
+          alert(`You have blocked ${this.recipientName}.`);
+        } else {
+          console.log(`You have unblocked ${this.recipientName}.`);
+          alert(`You have unblocked ${this.recipientName}.`);
+        }
+      },
+  
+      // Toggle the message form open/closed
+      toggleMessageForm() {
+        // If the user is blocked, you can decide whether to allow messaging
+        // For example, if blocked, do not show the form and alert:
+        if (this.isBlocked) {
+          alert(`Cannot send a message to ${this.recipientName} because they are blocked.`);
+          return;
+        }
+  
+        this.isSendingMessage = !this.isSendingMessage;
+        // If closing the form, reset the message text:
+        if (!this.isSendingMessage) {
+          this.messageText = '';
+        }
+      },
+  
+      // Send the message
+      sendMessage() {
+        console.log(`Message sent to ${this.recipientName}: ${this.messageText}`);
+        alert(`Message sent to ${this.recipientName}: ${this.messageText}`);
   
         // Clear and close the form
         this.messageText = '';
@@ -301,7 +398,48 @@
     box-sizing: border-box;
     padding: 8px;
   }
-  </style>
+  </style><style scoped>
+.message-feature {
+  max-width: 400px;
+  margin: 0 auto;
+  font-family: sans-serif;
+}
+
+/* Block/Unblock Section */
+.block-user-action {
+  margin-bottom: 15px;
+}
+
+/* Button styling */
+button {
+  margin-bottom: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+}
+
+/* Send Message Feature */
+.message-action {
+  margin-bottom: 15px;
+}
+
+.send-message-form {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.send-message-form .form-group {
+  margin-bottom: 10px;
+}
+
+.send-message-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+}
+</style>
   <style scoped>
   .profile {
     max-width: 600px;
