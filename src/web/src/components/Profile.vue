@@ -137,8 +137,58 @@
         <button type="button" @click="cancelEdit">Cancel</button>
       </form>
     </div>
+      <div class="message-feature">
+    <!-- Button to open/close message form -->
+    <button @click="toggleMessageForm">
+      {{ isSendingMessage ? 'Close Message Form' : 'Send Message' }}
+    </button>
+
+    <!-- Message Form (visible only if isSendingMessage is true) -->
+    <form v-if="isSendingMessage" @submit.prevent="sendMessage" class="send-message-form">
+      <h3>Send Message to {{ recipientName }}</h3>
+      <div class="form-group">
+        <label for="messageText">Message:</label>
+        <textarea 
+          id="messageText" 
+          v-model="messageText" 
+          rows="3" 
+          placeholder="Write your message here..."
+        ></textarea>
+      </div>
+      <button type="submit">Send</button>
+    </form>
+  </div>
   </template>
+  <script>
+  export default {
+    name: 'MessageFeature',
+    data() {
+      return {
+        recipientName: 'John Doe',
+        isSendingMessage: false,
+        messageText: ''
+      };
+    },
+    methods: {
+      toggleMessageForm() {
+        this.isSendingMessage = !this.isSendingMessage;
+        // If we're closing the form, reset the message text
+        if (!this.isSendingMessage) {
+          this.messageText = '';
+        }
+      },
+      sendMessage() {
+        // Here you'd handle the message (API call, Vuex, etc.)
+        console.log('Message sent to ' + this.recipientName + ':', this.messageText);
+        alert('Message sent: ' + this.messageText);
   
+        // Clear and close the form
+        this.messageText = '';
+        this.isSendingMessage = false;
+      }
+    }
+  };
+  </script>
   <script>
   export default {
     name: 'Profile',
@@ -216,8 +266,42 @@
       }
     },
   };
-  </script>
   
+  </script>
+  <style scoped>
+  .message-feature {
+    max-width: 400px;
+    margin: 0 auto;
+    font-family: sans-serif;
+  }
+  
+  /* Button styling */
+  button {
+    margin-bottom: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+  }
+  
+  /* Form styling */
+  .send-message-form {
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  .send-message-form .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .send-message-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+  }
+  </style>
   <style scoped>
   .profile {
     max-width: 600px;
