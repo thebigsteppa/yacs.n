@@ -218,6 +218,17 @@
       <button @click="toggleMessageForm">
         {{ isSendingMessage ? 'Close Message Form' : 'Send Message' }}
       </button>
+    <!-- Update the Recent Activity Feed to include like functionality -->
+    <div class="activity-feed">
+      <h3>Recent Activity</h3>
+      <ul>
+        <li v-for="(status, index) in statusUpdates" :key="index">
+          <strong>{{ name }}:</strong> {{ status.message }}
+          <button @click="likeStatus(index)">Like</button>
+          <span>{{ status.likes }} Likes</span>
+        </li>
+      </ul>
+    </div>
 
       <!-- Message Form (visible only if isSendingMessage is true) -->
       <form 
@@ -270,6 +281,7 @@
     }
   };
   </script>
+  
   <script>
   export default {
     name: 'MessageFeature',
@@ -299,6 +311,29 @@
         }
       },
   
+      methods: {
+    postStatus() {
+      if (this.newStatus.trim() === '') {
+        alert('Please write a status before posting.');
+        return;
+      }
+      // Add a new status object with a default like count of 0
+      this.statusUpdates.unshift({ message: this.newStatus, likes: 0 });
+      this.addNotification('New status posted!');
+      this.newStatus = '';
+    },
+    addNotification(message) {
+      this.notifications.unshift(message);
+      if (this.notifications.length > 10) {
+        this.notifications.pop();
+      }
+    },
+    likeStatus(index) {
+      // Increase the like count for the specified status update
+      this.statusUpdates[index].likes++;
+      this.addNotification('A status update was liked!');
+    }
+  
       // Toggle the message form open/closed
       toggleMessageForm() {
         // If the user is blocked, you can decide whether to allow messaging
@@ -326,6 +361,7 @@
       }
     }
   };
+  }
   </script>
   <script>
   export default {
@@ -445,6 +481,7 @@
   margin: 0 auto;
   font-family: sans-serif;
 }
+
 
 /* Block/Unblock Section */
 .block-user-action {
