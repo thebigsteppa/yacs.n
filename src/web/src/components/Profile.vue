@@ -158,6 +158,47 @@
       <button type="submit">Send</button>
     </form>
   </div>
+  <!-- New Feature: Status Update Section -->
+<div class="status-update">
+  <h3>What's on your mind?</h3>
+  <textarea 
+    v-model="newStatus" 
+    rows="2" 
+    placeholder="Share a status update..."
+  ></textarea>
+  <button @click="postStatus">Post Status</button>
+</div>
+
+<!-- New Feature: Recent Activity Feed -->
+<div class="activity-feed">
+  <h3>Recent Activity</h3>
+  <ul>
+    <li v-for="(status, index) in statusUpdates" :key="index">
+      <strong>{{ name }}:</strong> {{ status }}
+    </li>
+  </ul>
+</div>
+
+<!-- New Feature: Notifications -->
+<div class="notifications">
+  <h3>Notifications</h3>
+  <ul>
+    <li v-for="(notification, index) in notifications" :key="index">
+      {{ notification }}
+    </li>
+  </ul>
+</div>
+
+<!-- New Feature: Friend List -->
+<div class="friend-list">
+  <h3>Friends</h3>
+  <ul>
+    <li v-for="(friend, index) in friendList" :key="index">
+      {{ friend }}
+    </li>
+  </ul>
+</div>
+
   <div class="message-feature">
     <!-- BLOCK/UNBLOCK FEATURE -->
     <div class="block-user-action">
