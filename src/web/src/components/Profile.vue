@@ -1,4 +1,12 @@
 <template>
+    <div :class="['profile', { dark: isDarkMode }]">
+    </div>
+    <h1>Profile Page</h1>
+
+    <!-- Dark Mode Toggle Button -->
+    <button @click="toggleDarkMode" class="toggle-dark-mode-button">
+      {{ isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode" }}
+    </button>
     <div class="profile">
       <h1>Profile Page</h1>
   
@@ -448,6 +456,25 @@
     margin: 0 auto;
     font-family: sans-serif;
   }
+    /* Dark Mode Styles */
+  .dark {
+    background-color: #222;
+    color: #eee;
+  }
+
+  .dark a {
+    color: #66bfff;
+  }
+
+  /* Optional: Styling for the Dark Mode toggle button */
+  .toggle-dark-mode-button {
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
   
   /* Button styling */
   button {
