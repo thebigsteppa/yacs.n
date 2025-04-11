@@ -7,6 +7,7 @@
     type="primary"
     variant="light"
   >
+    <!-- Brand and Semester Dropdown -->
     <b-navbar-brand
       class="align-middle text-dark"
       :to="{ name: 'CourseScheduler' }"
@@ -14,6 +15,7 @@
       YACS
     </b-navbar-brand>
     <div>
+      <!-- Semester selection dropdown -->
       <b-dropdown
         variant="outline-primary"
         size="sm"
@@ -30,15 +32,19 @@
         </b-dropdown-item>
       </b-dropdown>
     </div>
+
+    <!-- Navbar toggle icon for mobile view -->
     <b-navbar-toggle
       id="header-navbar-collapse-toggle"
       target="header-navbar-collapse"
-      :class="darkMode === true ? 'dark-mode-toggle' : darkMode === false ? 'light-mode-toggle' : ''"
     >
       <font-awesome-icon icon="bars" />
     </b-navbar-toggle>
+
+    <!-- Collapsible section containing all navigation items -->
     <b-collapse id="header-navbar-collapse" is-nav>
       <b-navbar-nav>
+        <!-- Navigation links for different pages -->
         <b-nav-item :to="{ name: 'CourseScheduler' }" class="first">
           <font-awesome-icon icon="calendar" />
           Schedule
@@ -60,8 +66,10 @@
           Finals
         </b-nav-item>
       </b-navbar-nav>
-      <!-- If user has logged in -->
+
+      <!-- Right side of the navbar -->
       <b-navbar-nav class="ml-auto">
+        <!-- Color mode selector -->
         <b-nav-dropdown text="Color Mode" style="padding-right: 5px;">
           <b-dropdown-item
             :class="this.darkMode === false ? 'drop-down-item' : ''"
@@ -82,21 +90,48 @@
             Follow Device Theme
           </b-dropdown-item>
         </b-nav-dropdown>
+
+        <!--
+          Notifications Dropdown:
+          - Shows a bell icon.
+          - Displays a badge with the number of unread notifications.
+          - When the user clicks a notification, it's marked as read.
+          - Only visible if the user is logged in.
+        -->
         <b-nav-item-dropdown right v-if="isLoggedIn">
-          <template v-slot:button-content>Hi, {{ user.name }}</template>
-          
-          <!-- Profile Button -->
-          <b-dropdown-item @click="$router.push({ name: 'Profile' })">
+          <template v-slot:button-content>
+            <font-awesome-icon icon="bell" />
+            <!-- Display badge if there are unread notifications -->
+            <span v-if="unreadNotificationsCount > 0" class="badge badge-danger">
+              {{ unreadNotificationsCount }}
+            </span>
+          </template>
+          <!-- Loop through the notifications and display each one as a dropdown item -->
+          <b-dropdown-item
+            v-for="(notification, index) in notifications"
+            :key="index"
+            @click="markNotificationRead(index)"
+          >
+            {{ notification.message }}
+          </b-dropdown-item>
+        </b-nav-item-dropdown>
+
+        <!-- User Profile and Logout dropdown shown if the user is logged in -->
+        <b-nav-item-dropdown right v-if="isLoggedIn">
+          <template v-slot:button-content>
+            Hi, {{ user.name }}
+          </template>
+          <!-- Link to the user profile page -->
+          <b-dropdown-item @click="$router.push({ name: 'UserProfile' })">
             Profile
           </b-dropdown-item>
-          
           <!-- Log Out Button -->
           <b-dropdown-item @click="logOut">
             Sign Out
           </b-dropdown-item>
         </b-nav-item-dropdown>
 
-        <!-- If user has not logged in -->
+        <!-- Login button and modal when the user is not logged in -->
         <template v-else>
           <b-button
             id="login-button"
@@ -107,13 +142,7 @@
           >
             Log In
           </b-button>
-
-          <b-modal
-            id="login-modal"
-            ref="login-modal"
-            hide-footer
-            title="Log In"
-          >
+          <b-modal id="login-modal" ref="login-modal" hide-footer title="Log In">
             <LoginForm @submit="onLogIn()" />
           </b-modal>
         </template>
@@ -133,7 +162,7 @@ import {
 import { mapState, mapActions, mapGetters } from "vuex";
 import LoginComponent from "@/components/Login";
 import { userTypes } from "../store/modules/user";
-// import router from "@/routes";
+
 export default {
   name: "Header",
   components: {
@@ -141,11 +170,20 @@ export default {
   },
   data() {
     return {
-      darkMode: this.$store.getters.darkModeState, //false for light mode, true for dark mode
+      // Current theme setting from Vuex store: false = light, true = dark, null = following device theme
+      darkMode: this.$store.getters.darkModeState,
+      // Used to display notifications for changes in device theme
       notify: false,
+      // Dummy notifications list for demonstration purposes
+      notifications: [
+        { message: "Your schedule has been updated!", read: false },
+        { message: "New course added to your favorites.", read: false },
+        { message: "Reminder: Finals schedule released.", read: true },
+      ],
     };
   },
   mounted() {
+    // Check for dark mode cookie on load and set theme notification flag as needed
     if (this.$cookies.get(COOKIE_DARK_MODE) === null) {
       this.darkMode = null;
       this.notify = true;
@@ -153,19 +191,19 @@ export default {
   },
   methods: {
     ...mapActions([SELECT_SEMESTER]),
+    // Toggle between light and dark modes
     toggle_style(mode) {
-      //Sends message to user that device theme is no longer followed
+      // Notify user if switching from device theme mode
       if (this.notify) {
         this.unFollowDeviceTheme();
         this.notify = false;
       }
 
-      //determines the default theme of user (either light or dark)
+      // Determine current device theme using media query
       const deviceTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches;
 
-      //if the button mode user pressed is opposite of the current color, then toggle
-      // OR if the user was previously following their device theme and button pressed isn't their device theme, toggle
+      // Toggle dark mode if necessary, based on user action versus current mode
       if (
         (mode === false && this.darkMode === true) ||
         (mode === true && this.darkMode === false) ||
@@ -174,23 +212,25 @@ export default {
         this.$store.commit(TOGGLE_DARK_MODE);
         this.$store.commit(SAVE_DARK_MODE);
       } else {
-        // if user was following device theme and pressed the same button color, make the cookie with curr color
+        // Save current mode if it hasn't changed
         this.$store.commit(SAVE_DARK_MODE);
       }
-
-      this.darkMode = this.$store.getters.darkModeState; //resets to match current color mode
+      // Update local dark mode state from the store
+      this.darkMode = this.$store.getters.darkModeState;
     },
+    // Toggle to follow the device theme
     toggle_device() {
-      this.followDeviceTheme(); //sends user message
+      this.followDeviceTheme();
       this.notify = true;
-
       this.$store.commit(RESET_DARK_MODE);
       this.$store.commit(TOGGLE_DARK_MODE);
-      this.darkMode = null; //sets color mode
+      this.darkMode = null;
     },
+    // Handle login modal hide after successful login
     onLogIn() {
       this.$refs["login-modal"].hide();
     },
+    // Handle logout process
     async logOut() {
       try {
         await this.$store.dispatch(userTypes.actions.LOGOUT);
@@ -204,6 +244,7 @@ export default {
         });
       }
     },
+    // Show toast when user unfollows the device theme (changes manually)
     unFollowDeviceTheme() {
       this.$bvToast.toast(`No Longer Following Device Theme`, {
         title: "Color Scheme Changed",
@@ -213,6 +254,7 @@ export default {
         toaster: "b-toaster-top-center",
       });
     },
+    // Show toast when user starts following the device theme
     followDeviceTheme() {
       this.$bvToast.toast(`Now Following Device Theme`, {
         title: "Color Scheme Changed",
@@ -222,33 +264,59 @@ export default {
         toaster: "b-toaster-top-center",
       });
     },
+    // When a notification is clicked, mark it as read
+    markNotificationRead(index) {
+      // Change the status of the notification at the given index
+      this.notifications[index].read = true;
+      // Give a brief toast notification to inform the user
+      this.$bvToast.toast(`Notification marked as read.`, {
+        title: "Notification",
+        autoHideDelay: 1500,
+        variant: "info",
+        toaster: "b-toaster-top-center",
+      });
+    },
   },
   computed: {
+    // Map user status and information from Vuex getters and state
     ...mapGetters({
       isLoggedIn: userTypes.getters.IS_LOGGED_IN,
       user: userTypes.getters.CURRENT_USER_INFO,
     }),
     ...mapState({ sessionId: userTypes.state.SESSION_ID }),
     ...mapState(["semesters", "selectedSemester"]),
+    // Create options for the semester dropdown
     semesterOptions() {
       return this.semesters.map(({ semester }) => ({
         text: semester,
         value: semester,
       }));
     },
+    // Calculate the count of unread notifications for the badge display
+    unreadNotificationsCount() {
+      return this.notifications.filter((n) => !n.read).length;
+    },
   },
 };
 </script>
-
 <style lang="scss" scoped>
+/* Styling for the notification badge */
+.badge {
+  margin-left: 5px;
+  font-size: 0.8rem;
+  vertical-align: top;
+}
+
+/* Responsive styling for small devices */
 @include media-breakpoint-down(sm) {
   #login-button,
   #darkmode-toggle-form {
-    // equivalent to mb-1
     margin-bottom: $spacer * 0.25;
     margin-top: $spacer * 0.25;
   }
 }
+
+/* Header component styles */
 #header {
   .navbar-brand {
     font-size: 25px;
@@ -261,30 +329,30 @@ export default {
     font-size: 17px;
     font-weight: normal;
   }
-  // centering of the dark mode toggle
+  // Centering dark mode toggle
   .inline-form,
   .form-inline {
     justify-content: center;
   }
 }
-//highlight current page in the navbar using class built into vue router
+
+/* Highlight currently active navigation links */
 .nav-item:not(.first) .router-link-active {
   border-radius: 5px;
   padding: calc(8px - 0.2em);
   border: 0.2em solid var(--dark-blue-secondary);
 }
-
 .nav-item.first .router-link-exact-active {
   border-radius: 5px;
   padding: calc(8px - 0.2em);
   border: 0.2em solid var(--dark-blue-secondary);
 }
-.dark-mode-toggle {
+/* Ensure toggle icon is visible in dark mode */
+.dark #header-navbar-collapse-toggle {
   color: var(--dark-text-primary) !important;
 }
-.light-mode-toggle {
-  color: var(--light-text-primary) !important;
-}
+
+/* Custom dropdown item styling */
 .drop-down-item {
   background: hsl(211, 100%, 60%) !important;
 }
