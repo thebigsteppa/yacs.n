@@ -150,6 +150,14 @@
     <button @click="toggleMessageForm">
       {{ isSendingMessage ? 'Close Message Form' : 'Send Message' }}
     </button>
+  <div class="achievements">
+    <h3>Achievements</h3>
+    <ul>
+      <li v-for="(badge, index) in badges" :key="index">
+        🏅 {{ badge }}
+      </li>
+    </ul>
+  </div>
 
     <!-- Message Form (visible only if isSendingMessage is true) -->
     <form v-if="isSendingMessage" @submit.prevent="sendMessage" class="send-message-form">
@@ -376,6 +384,13 @@
     name: 'Profile',
     data() {
       return {
+        badges: [
+    'First Login',
+    'Made 10 Posts',
+    '100 Likes Received',
+    'Connected with 5 Friends',
+  ]
+
         // Basic profile data
         name: 'John Doe',
         email: 'john.doe@example.com',
@@ -450,7 +465,25 @@
   };
   
   </script>
+  
   <style scoped>
+  .achievements {
+  margin-top: 20px;
+}
+
+.achievements ul {
+  list-style: none;
+  padding: 0;
+}
+
+.achievements li {
+  margin: 8px 0;
+  padding: 6px 12px;
+  background-color: #f0f8ff;
+  border-left: 4px solid #007BFF;
+  border-radius: 4px;
+}
+
   .message-feature {
     max-width: 400px;
     margin: 0 auto;
