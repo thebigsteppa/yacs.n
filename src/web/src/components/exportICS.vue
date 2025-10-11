@@ -97,3 +97,107 @@ function foldLines(ics: string) {
   }).join('\n')
 }
 
+function buildVTIMEZONE(tzid: string) {
+  // Minimal VTIMEZONE for America/New_York. For other tzids, we still emit TZID and skip details.
+  if (tzid !== 'America/New_York') {
+    return `BEGIN:VTIMEZONE\nTZID:${tzid}\nEND:VTIMEZONE`;
+  }
+  return [
+    'BEGIN:VTIMEZONE',
+    'TZID:America/New_York',
+    'LAST-MODIFIED:20200101T000000Z',
+    'BEGIN:DAYLIGHT',
+    'TZNAME:EDT',
+    'TZOFFSETFROM:-0500',
+    'TZOFFSETTO:-0400',
+    'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU', // second Sunday of March
+    'DTSTART:20070311T020000',
+    'END:DAYLIGHT',
+    'BEGIN:STANDARD',
+    'TZNAME:EST',
+    'TZOFFSETFROM:-0400',
+    'TZOFFSETTO:-0500',
+    'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU', // first Sunday of November
+    'DTSTART:20071104T020000',
+    'END:STANDARD',
+    'END:VTIMEZONE'
+  ].join('\n')
+}
+
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
+
+function buildIcs(): string {
+  const now = new Date()
+  const dtstamp = localDateTimeString(now) + 'Z' // DTSTAMP should be UTC; approximate by appending Z
+  const tzid = tz.value
+
+  const lines: string[] = []
+  lines.push('BEGIN:VCALENDAR')
+  lines.push('VERSION:2.0')
+  lines.push('PRODID:-//YACSn//Schedule Export//EN')
+  lines.push('CALSCALE:GREGORIAN')
+  lines.push('METHOD:PUBLISH')
+  lines.push(buildVTIMEZONE(tzid))
+
+  for (const ev of props.events) {
+    const tzidForEvent = ev.timezone || tzid
+    const startOfTerm = makeDateAtLocal(ev.startDate, ev.startTime, tzidForEvent)
+    const endOfTerm = makeDateAtLocal(ev.endDate, ev.endTime, tzidForEvent)
+
+    for (const day of ev.days) {
+      const first = nextOnOrAfter(startOfTerm, BYDAY_TO_JS[day])
+
+      for (let d = new Date(first.getTime()); d <= endOfTerm; d.setDate(d.getDate() + 7)) {
+        const startLocal = new Date(d.getTime())
+        const [sH, sM] = ev.startTime.split(':').map(Number)
+        startLocal.setHours(sH, sM, 0, 0)
+
+        const endLocal = new Date(d.getTime())
+        const [eH, eM] = ev.endTime.split(':').map(Number)
+        endLocal.setHours(eH, eM, 0, 0)
+
+        // Skip if beyond endDate
+        const endCap = makeDateAtLocal(ev.endDate, ev.endTime, tzidForEvent)
+        if (startLocal > endCap) break
+
+        const uid = `${uuid()}@yacsn`
+        lines.push('BEGIN:VEVENT')
+        lines.push(`UID:${uid}`)
+        lines.push(`DTSTAMP:${dtstamp}`)
+        lines.push(`SUMMARY:${escapeText(ev.title)}`)
+        if (ev.location) lines.push(`LOCATION:${escapeText(ev.location)}`)
+        if (ev.description) lines.push(`DESCRIPTION:${escapeText(ev.description)}`)
+        lines.push(`DTSTART;TZID=${tzidForEvent}:${localDateTimeString(startLocal)}`)
+        lines.push(`DTEND;TZID=${tzidForEvent}:${localDateTimeString(endLocal)}`)
+        lines.push('END:VEVENT')
+      }
+    }
+  }
+
+  lines.push('END:VCALENDAR')
+  return foldLines(lines.join('\n'))
+}
+
+function exportIcs() {
+  const ics = buildIcs()
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = fileName.value.endsWith('.ics') ? fileName.value : `${fileName.value}.ics`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+</script>
+
+<style scoped>
+button:focus { outline: none; }
+</style>
