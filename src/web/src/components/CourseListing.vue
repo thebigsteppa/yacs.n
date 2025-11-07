@@ -239,12 +239,28 @@ export default {
     },
   },
   computed: {
-    sortedSections() {
-      return this.course.sections
-        .slice()
-        .sort((a, b) => a.sessions[0].section - b.sessions[0].section);
-    },
+  sortedSections() {
+    return this.course.sections
+      .slice()
+      .sort((a, b) => a.sessions[0].section - b.sessions[0].section);
   },
+  // New: applies the "show only open" filter
+  visibleSections() {
+    const sections = this.sortedSections;
+
+    if (!this.showOnlyOpenSections) {
+      return sections;
+    }
+
+    // Only keep sections that actually have open seats
+    return sections.filter((section) => {
+      // If total seats is zero, treat it as not open
+      if (section.seats_total <= 0) return false;
+      return section.seats_open > 0;
+    });
+  },
+},
+
 };
 </script>
 
