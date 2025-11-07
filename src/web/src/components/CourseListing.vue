@@ -36,22 +36,33 @@
       </div>
     </div>
     <b-collapse
-      v-if="loaded || !lazyLoadCollapse"
-      v-model="showCollapse"
-      :id="course.id"
-    >
-      <slot name="collapseContent" :course="course">
-        <b-list-group flush>
-          <b-list-group-item
-            class="selected"
-            button
-            v-for="section in sortedSections"
-            :key="section.crn"
-            @click.stop="toggleCourseSection(section)"
-            :style="{
-              'border-left': section.selected
-                ? `4px solid ${getBorderColor(course.name)}`
-                : 'none',
+  v-if="loaded || !lazyLoadCollapse"
+  v-model="showCollapse"
+  :id="course.id"
+>
+  <slot name="collapseContent" :course="course">
+    <!-- New: filter toggle -->
+    <div class="d-flex justify-content-end mb-1">
+      <b-form-checkbox
+        v-model="showOnlyOpenSections"
+        size="sm"
+      >
+        Show only open sections
+      </b-form-checkbox>
+    </div>
+
+    <b-list-group flush>
+      <b-list-group-item
+        class="selected"
+        button
+        v-for="section in visibleSections"
+        :key="section.crn"
+        @click.stop="toggleCourseSection(section)"
+        :style="{
+          'border-left': section.selected
+            ? `4px solid ${getBorderColor(course.name)}`
+            :
+
               'background-color': section.selected
                 ? `${getBackgroundColor(course.name)} !important`
                 : $store.state.darkMode
