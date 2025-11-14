@@ -30,6 +30,28 @@ class OpenSectionsPreference {
     this.state.global = !!val;
     return this;
   }
+   // PER COURSE
+   getForCourse(courseId) {
+    const v = this.state.perCourse?.[courseId];
+    return typeof v === "boolean" ? v : undefined; // undefined => fall back to global
+  }
+  setForCourse(courseId, val) {
+    if (!this.state.perCourse) this.state.perCourse = {};
+    this.state.perCourse[courseId] = !!val;
+    return this;
+  }
+
+  clearPerCourse(courseId) {
+    if (this.state.perCourse && courseId in this.state.perCourse) {
+      delete this.state.perCourse[courseId];
+    }
+    return this;
+  }
+
+  clearAll() {
+    this.state = { global: false, perCourse: {} };
+    return this;
+  }
 }
 
 export { OpenSectionsPreference };
