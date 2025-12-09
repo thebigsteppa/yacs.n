@@ -10,6 +10,12 @@
       v-for="course of courses"
       :key="course.id"
     >
+    <div class="alert mt-2" :class="creditStatusClass">
+  <strong>Total Credits: {{ totalCredits }}</strong>
+  <span v-if="creditStatusMessage">
+    — {{ creditStatusMessage }}
+      </span>
+</div>
       <CourseListing :course="course" v-on="$listeners" />
     </b-list-group-item>
   </b-list-group>
@@ -27,6 +33,35 @@ export default {
   },
   props: {
     courses: Object,
+  },
+  computed: {
+    // NEW: total credits from selected courses
+    totalCredits() {
+      if (!this.selectedCourses) return 0;
+
+      // Adjust field name if your course uses course.credits or course.credit_hours
+      return this.selectedCourses.reduce((sum, c) => {
+        const cr = Number(c.credits || c.credit_hours || 0);
+        return sum + (isNaN(cr) ? 0 : cr);
+      }, 0);
+    },
+
+    creditStatusMessage() {
+      const c = this.totalCredits;
+
+      if (c === 0) return "No courses selected yet.";
+      if (c < 12) return "Below full-time (typically < 12 credits).";
+      if (c > 18) return "Above typical load (18+ credits) — consider workload.";
+      return "Within a typical full-time load.";
+    },
+
+    creditStatusClass() {
+      const c = this.totalCredits;
+      if (c === 0) return "alert-secondary";
+      if (c < 12) return "alert-warning";
+      if (c > 18) return "alert-danger";
+      return "alert-success";
+    },
   },
 };
 </script>
