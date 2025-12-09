@@ -302,6 +302,22 @@ export default defineComponent({
     };
   },
 });
+computed: {
+  sortedSections() {
+    // start with a copy so we don't mutate original
+    let sections = this.course.sections ? this.course.sections.slice() : [];
+
+    // NEW: only keep sections with open seats when toggle is on
+    if (this.onlyOpenSections) {
+      sections = sections.filter((section) => section.seats_open > 0);
+    }
+
+    return sections.sort(
+      (a, b) => a.sessions[0].section - b.sessions[0].section
+    );
+  },
+},
+
 </script>
 
 <style>
@@ -317,4 +333,5 @@ export default defineComponent({
 .functional-component button:hover {
   background-color: #0056b3;
 }
+
 </style>

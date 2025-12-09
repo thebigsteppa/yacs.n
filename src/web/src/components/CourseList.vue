@@ -30,6 +30,16 @@
           </b-form-group>
         </b-col>
       </b-row>
+
+      <!-- NEW: Show only open sections toggle -->
+      <b-form-checkbox
+        v-model="onlyOpenSections"
+        switch
+        class="mt-2"
+      >
+        Show only courses with open sections
+      </b-form-checkbox>
+
     </div>
     <!-- Start of Dynamic Scrolling Rendering To Account For Varying Course Data. > -->
     <hr />
@@ -61,6 +71,19 @@
                 v-on="$listeners"
                 lazyLoadCollapse
               >
+              <b-list-group-item
+                  class="selected"
+                  button
+                  v-for="section in sortedSections"
+                  :key="section.crn"
+                  @click.stop="toggleCourseSection(section)"
+                >
+                <!-- Add content here, e.g., section.title -->
+                {{ section.title }}
+              </b-list-group-item>
+
+
+              
                 <template #toggleCollapseButton="{ course }">
                   <button
                     v-show="
@@ -228,6 +251,7 @@ export default {
     },
   },
 };
+
 </script>
 
 <style scoped lang="scss">
