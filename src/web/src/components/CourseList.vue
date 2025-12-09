@@ -139,7 +139,23 @@ export default {
       selectedDepartment: null,
       courseList: null,
       debounceTime: 300,
-    };
+      textSearch: "",
+    selectedSubsemester: null,
+    selectedDepartment: null,
+    courseList: null,
+    debounceTime: 300,
+    onlyOpenSections: false,
+
+    // NEW
+    selectedDays: [], // e.g. ["M", "W"]
+    dayFilterOptions: [
+      { text: "M", value: "M" },
+      { text: "T", value: "T" },
+      { text: "W", value: "W" },
+      { text: "R", value: "R" },
+      { text: "F", value: "F" },
+    ],
+  };
   },
   created() {
     getDepartments().then((departments) => {
@@ -174,18 +190,54 @@ export default {
       return false;
     },
     filterSection(courses) {
-      return courses.filter(
+    let filtered = courses.filter(
+      (course) =>
+        (!this.selectedDepartment ||
+          course.department === this.selectedDepartment) &&
+        (!this.selectedSubsemester ||
+          (this.selectedSubsemester.date_start.getTime() ===
+            course.date_start.getTime() &&
+            this.selectedSubsemester.date_end.getTime() ===
+              course.date_end.getTime()))
+    );
+
+    // existing open-sections logic
+    if (this.onlyOpenSections) {
+      filtered = filtered.filter(
         (course) =>
-          (!this.selectedDepartment ||
-            course.department === this.selectedDepartment) &&
-          (!this.selectedSubsemester ||
-            (this.selectedSubsemester.date_start.getTime() ===
-              course.date_start.getTime() &&
-              this.selectedSubsemester.date_end.getTime() ===
-                course.date_end.getTime()))
+          course.sections &&
+          course.sections.some((section) => section.seats_open > 0)
       );
-    },
+    }
+
+    // NEW: day filter
+    if (this.selectedDays.length === 0) {
+      return filtered; // no day filter applied
+    }
+
+    const selectedSet = new Set(this.selectedDays);
+
+    return filtered.filter((course) => {
+      if (!course.sections) return false;
+
+      return course.sections.some((section) => {
+        if (!section.sessions) return false;
+
+        return section.sessions.some((session) => {
+          // Adapt field name if needed: session.days, session.day_short, etc.
+          const daysString = session.days || session.day_short || "";
+          // keep section if *any* selected day is contained
+          for (const d of selectedSet) {
+            if (daysString.includes(d)) {
+              return true;
+            }
+          }
+          return false;
+        });
+      });
+    });
   },
+},
   watch: {
     /* This value gets debounced */
     textSearch: function () {
