@@ -201,6 +201,22 @@ class SelectedCoursesCookie {
 
     return this;
   }
+    /**
+   * Clear selected courses for the current semester only
+   * @returns {this}
+   */
+    clearSemester() {
+      if (this._semester === undefined) {
+        return this;
+      }
+  
+      if (this._selectedSemesters[this._semester] !== undefined) {
+        delete this._selectedSemesters[this._semester];
+      }
+  
+      return this;
+    }
+  
 }
 
 export { SelectedCoursesCookie };

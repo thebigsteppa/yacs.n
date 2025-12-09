@@ -115,6 +115,22 @@ class SelectedIndexCookie {
 
     return this;
   }
+    /**
+   * Clear the selected index for the current semester only
+   * @returns {this}
+   */
+    clearSemester() {
+      if (this._semester === undefined) {
+        return this;
+      }
+  
+      if (this._selectedSemestersIndex[this._semester] !== undefined) {
+        delete this._selectedSemestersIndex[this._semester];
+      }
+  
+      return this;
+    }
+  
 }
 
 export { SelectedIndexCookie };
