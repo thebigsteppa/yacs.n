@@ -41,6 +41,24 @@
       </b-form-checkbox>
 
     </div>
+    <b-form-group
+  label="Jump to CRN"
+  description="Type a CRN to quickly locate its course"
+  class="mt-2"
+>
+  <b-input-group size="sm">
+    <b-form-input
+      v-model="jumpCrn"
+      placeholder="e.g. 12345"
+      @keyup.enter="jumpToCrn"
+    />
+    <b-input-group-append>
+      <b-button variant="primary" @click="jumpToCrn">
+        Go
+      </b-button>
+    </b-input-group-append>
+  </b-input-group>
+</b-form-group>
     <!-- Start of Dynamic Scrolling Rendering To Account For Varying Course Data. > -->
     <hr />
     <div id="scroll-box" data-cy="course-list">

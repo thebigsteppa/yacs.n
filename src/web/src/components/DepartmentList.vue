@@ -98,6 +98,21 @@ export default {
       </b-col>
     </b-row>
   </div>
+  <ul class="list-group">
+  <li
+    v-for="dept in departmentsWithOpenCounts"
+    :key="dept.code"
+    class="list-group-item d-flex justify-content-between align-items-center"
+    :class="{ 'text-muted': dept.openCount === 0 }"
+    @click="$emit('select-department', dept.code)"
+  >
+    <span>{{ dept.code }} — {{ dept.name }}</span>
+    <span class="badge badge-pill badge-secondary">
+      {{ dept.openCount }} open sections
+    </span>
+  </li>
+</ul>
+
 </template>
 
 <script>
