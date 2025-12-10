@@ -108,5 +108,45 @@ export default {
       debounceTime: 300,
     };
   },
+  export default {
+  props: {
+    departments: {
+      type: Array,
+      required: true,
+    },
+    courses: {
+      type: Array,
+      required: true, // NEW: full course list
+    },
+  },
+  computed: {
+    departmentsWithOpenCounts() {
+      // Map: deptCode -> count of sections with seats_open > 0
+      const counts = {};
+
+      this.courses.forEach((course) => {
+        const dept = course.department;
+        if (!course.sections) return;
+
+        const openSectionCount = course.sections.reduce((count, s) => {
+          const open = Number(s.seats_open || 0);
+          return count + (open > 0 ? 1 : 0);
+        }, 0);
+
+        if (!counts[dept]) counts[dept] = 0;
+        counts[dept] += openSectionCount;
+      });
+
+      return this.departments.map((dept) => {
+        return {
+          code: dept.code || dept, // adjust to your structure
+          name: dept.name || dept,
+          openCount: counts[dept.code || dept] || 0,
+        };
+      });
+    },
+  },
+};
+
 };
 </script>
